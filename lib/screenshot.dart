@@ -221,7 +221,18 @@ class ScreenshotController {
       ///
       ///This delay sholud increas with Widget tree Size
       ///
+      final completer = Completer<void>();
+      rootElement.visitChildren((element) async {
+        final _widget = element.widget;
+        if (_widget is Image) {
+          final image = _widget.image;
+          await precacheImage(image, element);
+          completer.complete();
+        }
+      });
 
+      await completer.future;
+      await Future.delayed(delay);
       await Future.delayed(delay);
 
       ///
@@ -264,7 +275,7 @@ class ScreenshotController {
   /// ## Notes on Usage:
   ///     1. Do not use any scrolling widgets like ListView,GridView. Convert those widgets to use Columns and Rows.
   ///     2. Do not Widgets like `Flexible`,`Expanded`, or `Spacer`. If you do Please consider passing constraints.
-  /// 
+  ///
   /// Params:
   ///
   /// [widget] : The Widget which needs to be captured.
